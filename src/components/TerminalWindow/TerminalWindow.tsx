@@ -8,24 +8,28 @@ import { useTheme } from '../../contexts/ThemeContext';
 import { generateMultiLineAsciiArt } from '../../utils/asciiArt';
 
 interface TerminalWindowProps {
-  id: string; 
+  id: string;
   initialPosition?: { x: number; y: number };
   initialSize?: { width?: number; height?: number };
   title?: string;
   onClose?: () => void;
   onPositionChange?: (id: string, position: { x: number; y: number }) => void;
+  zIndex?: number;
+  onFocus?: (id: string) => void;
 }
 
 const DEFAULT_WIDTH = 650;
 const DEFAULT_HEIGHT = 450;
 
-export function TerminalWindow({ 
+export function TerminalWindow({
   id,
   initialPosition = { x: 0, y: 0 },
   initialSize = {},
   title = 'Terminal',
   onClose,
-  onPositionChange
+  onPositionChange,
+  zIndex = 10,
+  onFocus
 }: TerminalWindowProps) {
   const { currentTheme, getColorForRole } = useTheme();
   const nodeRef = useRef<HTMLDivElement>(null);
@@ -89,7 +93,11 @@ export function TerminalWindow({
         }
       }}
     >
-      <div ref={nodeRef} style={{ position: 'absolute', zIndex: 10 }}>
+      <div
+        ref={nodeRef}
+        style={{ position: 'absolute', zIndex }}
+        onPointerDown={() => onFocus && onFocus(id)}
+      >
         <ResizableBox 
           width={size.width}
           height={size.height}

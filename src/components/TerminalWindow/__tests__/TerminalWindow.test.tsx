@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest';
-import { render } from '@testing-library/react';
+import { describe, it, expect, vi } from 'vitest';
+import { render, fireEvent } from '@testing-library/react';
 import { TerminalWindow } from '../TerminalWindow';
 import { ThemeProvider } from '../../../contexts/ThemeContext';
 
@@ -76,4 +76,19 @@ describe('<TerminalWindow />', () => {
     expect(resizableBoxH).toHaveStyle('width: 650px;'); // Default width
     expect(resizableBoxH).toHaveStyle('height: 250px;');
   });
-}); 
+
+  it('should call onFocus when pointer down occurs', () => {
+    const onFocus = vi.fn();
+    const { container } = render(
+      <ThemeProvider>
+        <TerminalWindow id="focus-test" onFocus={onFocus} />
+      </ThemeProvider>
+    );
+    const wrapper = container.querySelector('.react-draggable');
+    // The pointer event should propagate to the div with onPointerDown
+    if (wrapper) {
+      fireEvent.pointerDown(wrapper);
+    }
+    expect(onFocus).toHaveBeenCalledWith('focus-test');
+  });
+});

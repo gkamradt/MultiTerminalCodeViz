@@ -11,6 +11,7 @@ import { Analytics } from "@vercel/analytics/react"
 interface Terminal {
   id: string;
   position: { x: number; y: number };
+  zIndex: number;
 }
 
 function AppContent() {
@@ -29,10 +30,13 @@ function AppContent() {
   };
 
   // Hold all terminals directly in state so changes trigger re-renders
+  const [highestZIndex, setHighestZIndex] = useState(1);
+
   const [terminals, setTerminals] = useState<Terminal[]>(() => [
     {
       id: 'terminal-0',
       position: generateRandomPosition(),
+      zIndex: 1,
     },
   ]);
 
@@ -41,13 +45,16 @@ function AppContent() {
   const handleTerminalCountChange = (count: number) => {
     setTerminals((prev) => {
       let updated = [...prev];
+      let newZ = highestZIndex;
 
       // Add new terminals if needed
       if (count > prev.length) {
         for (let i = prev.length; i < count; i++) {
+          newZ += 1;
           updated.push({
             id: `terminal-${i}`,
             position: generateRandomPosition(),
+            zIndex: newZ,
           });
         }
       } else if (count < prev.length) {
@@ -55,6 +62,7 @@ function AppContent() {
         updated = updated.slice(0, count);
       }
 
+      setHighestZIndex(newZ);
       return updated;
     });
   };
@@ -64,11 +72,21 @@ function AppContent() {
   };
 
   const handlePositionChange = (terminalId: string, position: { x: number; y: number }) => {
-    setTerminals((prev) => 
-      prev.map((terminal) => 
-        terminal.id === terminalId 
+    setTerminals((prev) =>
+      prev.map((terminal) =>
+        terminal.id === terminalId
           ? { ...terminal, position }
           : terminal
+      )
+    );
+  };
+
+  const handleFocus = (terminalId: string) => {
+    const newZ = highestZIndex + 1;
+    setHighestZIndex(newZ);
+    setTerminals((prev) =>
+      prev.map((terminal) =>
+        terminal.id === terminalId ? { ...terminal, zIndex: newZ } : terminal
       )
     );
   };
@@ -154,6 +172,8 @@ function AppContent() {
             id={terminal.id}
             title={`Terminal ${index + 1}`}
             initialPosition={terminal.position}
+            zIndex={terminal.zIndex}
+            onFocus={handleFocus}
             onClose={() => handleTerminalClose(terminal.id)}
             onPositionChange={handlePositionChange}
           />
