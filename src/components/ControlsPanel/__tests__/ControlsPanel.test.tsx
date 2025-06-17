@@ -34,7 +34,7 @@ describe('ControlsPanel', () => {
     expect(screen.getByText('Arrange')).toBeInTheDocument();
     expect(screen.getByText(/Theme:/)).toBeInTheDocument();
     expect(screen.getByText(/Made with ❤️ by/)).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /use the vibe typer/i })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /vibe typer/i })).toBeInTheDocument();
   });
 
   it('should call onTerminalCountChange when + button is clicked', () => {
