@@ -57,6 +57,9 @@ function AppContent() {
   // const expectedCatCount = Math.min(Math.floor(actualTerminalCount / 5), 1000);
 
   const handleTerminalCountChange = (count: number) => {
+    // Store the current terminal count before updating state
+    const previousTerminalCount = actualTerminalCount;
+    
     // Update the actual terminal count (can go to 10,000+)
     setActualTerminalCount(count);
     
@@ -66,8 +69,8 @@ function AppContent() {
       let newNextId = nextTerminalId;
 
       // Add new terminals if needed
-      if (count > actualTerminalCount) {
-        const terminalsToAdd = count - actualTerminalCount;
+      if (count > previousTerminalCount) {
+        const terminalsToAdd = count - previousTerminalCount;
         for (let i = 0; i < terminalsToAdd; i++) {
           newZ += 1;
           const newTerminal = {
@@ -83,9 +86,9 @@ function AppContent() {
             updated = updated.slice(-maxRenderedTerminals);
           }
         }
-      } else if (count < actualTerminalCount) {
+      } else if (count < previousTerminalCount) {
         // Remove terminals from the end
-        const terminalsToRemove = actualTerminalCount - count;
+        const terminalsToRemove = previousTerminalCount - count;
         updated = updated.slice(0, Math.max(0, updated.length - terminalsToRemove));
       }
 
