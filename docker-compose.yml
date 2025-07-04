@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  # 主应用服务
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    container_name: multiterminal-codeviz
+    ports:
+      - "3000:80"
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:80"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # 开发环境服务（可选）
+  app-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+      target: development
+    container_name: multiterminal-codeviz-dev
+    ports:
+      - "5173:5173"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+      - VITE_HOST=0.0.0.0
+    networks:
+      - app-network
+    profiles:
+      - dev
+    command: npm run dev
+
+networks:
+  app-network:
+    driver: bridge
+
+# 可选：添加卷用于持久化数据
+volumes:
+  node_modules:

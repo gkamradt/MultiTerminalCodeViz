@@ -1,0 +1,117 @@
+# 依赖目录
+node_modules
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# 构建输出
+dist
+build
+
+# 环境变量文件
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# 日志文件
+logs
+*.log
+
+# 运行时数据
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# 覆盖率目录
+coverage
+.nyc_output
+
+# 依赖锁定文件（保留 package-lock.json）
+yarn.lock
+
+# 可选的 npm 缓存目录
+.npm
+
+# 可选的 eslint 缓存
+.eslintcache
+
+# 微服务
+.microbundle-cache
+
+# 可选的 REPL 历史
+.node_repl_history
+
+# 输出的 npm 包
+*.tgz
+
+# Yarn 完整性文件
+.yarn-integrity
+
+# parcel-bundler 缓存 (https://parceljs.org/)
+.cache
+.parcel-cache
+
+# next.js 构建输出
+.next
+
+# nuxt.js 构建输出
+.nuxt
+
+# vuepress 构建输出
+.vuepress/dist
+
+# Serverless 目录
+.serverless
+
+# FuseBox 缓存
+.fusebox/
+
+# DynamoDB Local 文件
+.dynamodb/
+
+# IDE 和编辑器文件
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS 生成的文件
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Git 文件
+.git
+.gitignore
+.gitattributes
+
+# Docker 文件
+Dockerfile*
+docker-compose*
+.dockerignore
+
+# 文档和说明文件
+README.md
+CHANGELOG.md
+LICENSE
+
+# 测试文件
+**/*.test.*
+**/*.spec.*
+__tests__/
+test/
+tests/
+
+# 规划文件
+planning/
+
+# Vercel 配置
+vercel.json
