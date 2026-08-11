@@ -295,18 +295,23 @@ function AppContent() {
     );
   }, [actualTerminalCount, catsSuppressed, economy.isInfinite, economy.progress, profile.maxCats]);
 
+  const displayedTerminalCount = economy.isInfinite
+    ? economy.logicalTerminalCount
+    : actualTerminalCount;
+
   return (
     <main className={`desktop-stage ${economy.isInfinite ? 'desktop-stage--infinite' : ''}`}>
       <BurnRateHUD
         tokensPerSecond={economy.tokensPerSecond}
         dollarsSpent={economy.dollarsSpent}
-        terminalCount={economy.logicalTerminalCount}
+        terminalCount={displayedTerminalCount}
         progress={economy.progress}
         isInfinite={economy.isInfinite}
       />
 
       <ControlsPanel
         terminalCount={actualTerminalCount}
+        displayedTerminalCount={displayedTerminalCount}
         onTerminalCountChange={handleTerminalCountChange}
         onArrangeTerminals={handleArrangeTerminals}
         catCount={catCount}

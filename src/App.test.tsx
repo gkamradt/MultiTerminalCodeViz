@@ -1,4 +1,5 @@
-import { render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
+import { vi } from 'vitest';
 import App from './App';
 
 // Mock window.innerWidth and innerHeight for the terminal layout
@@ -24,4 +25,31 @@ describe('<App />', () => {
     expect(screen.getByText('Arrange')).toBeInTheDocument();
     expect(screen.getByText(/Theme:/)).toBeInTheDocument();
   });
-}); 
+
+  it('keeps the left and right terminal counts synchronized during infinity mode', () => {
+    vi.useFakeTimers();
+    const view = render(<App />);
+
+    try {
+      const addTen = screen.getByRole('button', { name: 'Add ten terminals' });
+      const addOne = screen.getByRole('button', { name: 'Add terminal' });
+
+      fireEvent.click(addTen);
+      fireEvent.click(addTen);
+      fireEvent.click(addOne);
+      fireEvent.click(addOne);
+      fireEvent.click(addOne);
+      fireEvent.click(addOne);
+      fireEvent.click(screen.getByRole('button', { name: 'Start infinite terminals' }));
+
+      act(() => vi.advanceTimersByTime(1_000));
+
+      const leftCount = screen.getByTestId('burn-rate-terminal-count').textContent?.replace(/\s/g, '');
+      const rightCount = screen.getByTestId('terminal-count-control-value').textContent?.replace(/\s/g, '');
+      expect(leftCount).toBe(rightCount);
+    } finally {
+      view.unmount();
+      vi.useRealTimers();
+    }
+  });
+});

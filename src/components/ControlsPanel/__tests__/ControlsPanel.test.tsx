@@ -37,6 +37,26 @@ describe('ControlsPanel', () => {
     expect(screen.getByRole('link', { name: /vibe typer/i })).toBeInTheDocument();
   });
 
+  it('can display the shared logical count without changing the manual controls', () => {
+    const onTerminalCountChange = vi.fn();
+
+    render(
+      <ThemeProvider>
+        <AppProvider>
+          <ControlsPanel
+            terminalCount={25}
+            displayedTerminalCount={1_234}
+            onTerminalCountChange={onTerminalCountChange}
+          />
+        </AppProvider>
+      </ThemeProvider>
+    );
+
+    expect(screen.getByTestId('terminal-count-control-value')).toHaveTextContent('1,234terminals');
+    fireEvent.click(screen.getByRole('button', { name: 'Add terminal' }));
+    expect(onTerminalCountChange).toHaveBeenCalledWith(26);
+  });
+
   it('should call onTerminalCountChange when + button is clicked', () => {
     const mockOnTerminalCountChange = vi.fn();
     const mockOnArrangeTerminals = vi.fn();

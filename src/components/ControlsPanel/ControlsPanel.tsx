@@ -5,6 +5,7 @@ import { SimpleYouTubePlayer } from '../YouTubeAudioPlayer/SimpleYouTubePlayer';
 
 interface ControlsPanelProps {
   terminalCount: number;
+  displayedTerminalCount?: number;
   onTerminalCountChange: (count: number) => void;
   onArrangeTerminals?: () => void;
   minTerminals?: number;
@@ -18,6 +19,7 @@ interface ControlsPanelProps {
 
 export function ControlsPanel({
   terminalCount,
+  displayedTerminalCount = terminalCount,
   onTerminalCountChange,
   onArrangeTerminals,
   minTerminals = 1,
@@ -118,9 +120,9 @@ export function ControlsPanel({
             >
               -
             </button>
-            <span className="terminal-count-control__value">
-              {formatTerminalCount(terminalCount)}
-              <small>terminal{terminalCount === 1 ? '' : 's'}</small>
+            <span className="terminal-count-control__value" data-testid="terminal-count-control-value">
+              {formatTerminalCount(displayedTerminalCount)}
+              <small>terminal{displayedTerminalCount === 1 ? '' : 's'}</small>
             </span>
             <button
               type="button"

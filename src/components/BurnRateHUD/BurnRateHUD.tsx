@@ -43,7 +43,9 @@ export function BurnRateHUD({
       </div>
 
       <div className="burn-rate-hud__footer">
-        <span>{formatTerminalCount(terminalCount)} terminal{terminalCount === 1 ? '' : 's'}</span>
+        <span data-testid="burn-rate-terminal-count">
+          {formatTerminalCount(terminalCount)} terminal{terminalCount === 1 ? '' : 's'}
+        </span>
         <span>$30 / 1M output tokens</span>
       </div>
 
