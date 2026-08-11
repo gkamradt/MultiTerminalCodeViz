@@ -40,6 +40,9 @@ describe('<App />', () => {
       fireEvent.click(addOne);
       fireEvent.click(addOne);
       fireEvent.click(addOne);
+      const catsBeforeInfinity = Number(
+        screen.getByText(/vibe cats?/i).textContent?.match(/\d+/)?.[0],
+      );
       fireEvent.click(screen.getByRole('button', { name: 'Start infinite terminals' }));
 
       act(() => vi.advanceTimersByTime(1_000));
@@ -47,6 +50,10 @@ describe('<App />', () => {
       const leftCount = screen.getByTestId('burn-rate-terminal-count').textContent?.replace(/\s/g, '');
       const rightCount = screen.getByTestId('terminal-count-control-value').textContent?.replace(/\s/g, '');
       expect(leftCount).toBe(rightCount);
+      const catsDuringInfinity = Number(
+        screen.getByText(/vibe cats?/i).textContent?.match(/\d+/)?.[0],
+      );
+      expect(catsDuringInfinity).toBeGreaterThan(catsBeforeInfinity);
     } finally {
       view.unmount();
       vi.useRealTimers();

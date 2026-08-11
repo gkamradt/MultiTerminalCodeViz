@@ -36,6 +36,12 @@ export function getManualTokensPerSecond(terminalCount: number) {
   return total;
 }
 
+export function getVibeCatCount(terminalCount: number, maxCats: number) {
+  const safeTerminalCount = Math.max(0, Math.floor(terminalCount));
+  const safeMaxCats = Math.max(0, Math.floor(maxCats));
+  return Math.min(safeMaxCats, Math.floor(safeTerminalCount / 5));
+}
+
 export function getLogicalTerminalCount(tokensPerSecond: number) {
   const safeRate = Math.max(0, tokensPerSecond);
   const fullCycles = Math.floor(safeRate / TERMINAL_RATE_CYCLE_TOTAL);

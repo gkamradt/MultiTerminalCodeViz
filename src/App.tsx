@@ -11,7 +11,7 @@ import { BurnRateHUD } from './components/BurnRateHUD/BurnRateHUD';
 import { CrtFinale } from './components/CrtFinale/CrtFinale';
 import { AsciiTyper } from './pages/AsciiTyper';
 import { useVibeEconomy } from './hooks/useVibeEconomy';
-import { INFINITY_UNLOCK_COUNT } from './utils/vibeEconomy';
+import { getVibeCatCount, INFINITY_UNLOCK_COUNT } from './utils/vibeEconomy';
 
 interface Size {
   width: number;
@@ -287,13 +287,11 @@ function AppContent() {
 
   const catCount = useMemo(() => {
     if (catsSuppressed && !economy.isInfinite) return 0;
-    const manualCats = Math.min(profile.maxCats, Math.floor(actualTerminalCount / 5));
-    if (!economy.isInfinite) return manualCats;
-    return Math.min(
-      profile.maxCats,
-      Math.max(manualCats, 2 + Math.floor(economy.progress * profile.maxCats)),
-    );
-  }, [actualTerminalCount, catsSuppressed, economy.isInfinite, economy.progress, profile.maxCats]);
+    const catTerminalCount = economy.isInfinite
+      ? economy.logicalTerminalCount
+      : actualTerminalCount;
+    return getVibeCatCount(catTerminalCount, profile.maxCats);
+  }, [actualTerminalCount, catsSuppressed, economy.isInfinite, economy.logicalTerminalCount, profile.maxCats]);
 
   const displayedTerminalCount = economy.isInfinite
     ? economy.logicalTerminalCount

@@ -9,6 +9,7 @@ import {
   getLogicalTerminalCount,
   getManualTokensPerSecond,
   getTerminalTokensPerSecond,
+  getVibeCatCount,
   solveInfinityGrowth,
 } from '../vibeEconomy';
 
@@ -26,6 +27,13 @@ describe('vibe economy', () => {
     for (const count of [1, 7, 8, 25, 1_001, 8_000_000]) {
       expect(getLogicalTerminalCount(getManualTokensPerSecond(count))).toBe(count);
     }
+  });
+
+  it('adds a vibe cat for every five logical terminals up to the render limit', () => {
+    expect(getVibeCatCount(24, 10)).toBe(4);
+    expect(getVibeCatCount(25, 10)).toBe(5);
+    expect(getVibeCatCount(30, 10)).toBe(6);
+    expect(getVibeCatCount(10_000, 10)).toBe(10);
   });
 
   it('starts continuously and reaches exactly one billion dollars at 90 seconds', () => {
