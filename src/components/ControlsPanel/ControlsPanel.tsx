@@ -37,9 +37,9 @@ export function ControlsPanel({
   const remainingToUnlock = Math.max(0, INFINITY_UNLOCK_COUNT - terminalCount);
   const youtubeVideos = [
     {
-      id: 'jfKfPfyJRdk',
-      url: 'https://www.youtube.com/watch?v=jfKfPfyJRdk',
-      title: 'lofi hip hop radio 📚 - beats to relax/study to',
+      id: 'n61ULEU7CO0',
+      url: 'https://www.youtube.com/watch?v=n61ULEU7CO0',
+      title: 'Best of lofi hip hop 2021 ✨ [beats to relax/study to]',
     },
   ];
 
