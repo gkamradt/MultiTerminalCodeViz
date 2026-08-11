@@ -736,10 +736,15 @@
   }
 
   .crt-finale__flash,
-  .crt-finale__cracks,
   .crt-finale__shutter,
   .crt-finale__line,
   .crt-finale__dot {
     display: none;
+  }
+
+  .crt-finale__crack-group {
+    animation: none;
+    opacity: 1;
+    stroke-dashoffset: 0;
   }
 }
