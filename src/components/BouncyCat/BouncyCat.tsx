@@ -1,122 +1,49 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { memo, useMemo } from 'react';
+import type { CSSProperties } from 'react';
 
 interface BouncyCatProps {
   id: string;
-  onRemove?: (id: string) => void;
   totalCatCount?: number;
 }
 
-interface Position {
-  x: number;
-  y: number;
+function hashString(value: string) {
+  let hash = 0;
+  for (let index = 0; index < value.length; index += 1) {
+    hash = (hash * 31 + value.charCodeAt(index)) >>> 0;
+  }
+  return hash;
 }
 
-interface Velocity {
-  x: number;
-  y: number;
+function seededViewport(seed: number, offset: number, max: number, unit: 'vw' | 'vh') {
+  const value = Math.abs(Math.sin(seed * 12.9898 + offset * 78.233) * 43_758.5453);
+  return `${Math.round((value % 1) * max)}${unit}`;
 }
 
-export function BouncyCat({ totalCatCount = 1 }: BouncyCatProps) {
-  const [position, setPosition] = useState<Position>(() => ({
-    x: Math.random() * (window.innerWidth - 100),
-    y: Math.random() * (window.innerHeight - 100),
-  }));
-  
-  const [velocity, setVelocity] = useState<Velocity>(() => ({
-    x: (Math.random() - 0.5) * 4 + 2, // Random speed between -2 and 4, biased toward positive
-    y: (Math.random() - 0.5) * 4,
-  }));
+function BouncyCatComponent({ id, totalCatCount = 1 }: BouncyCatProps) {
+  const style = useMemo(() => {
+    const seed = hashString(id);
+    const duration = Math.max(7, 15 - Math.min(totalCatCount, 12) * 0.35);
 
-  const animationRef = useRef<number>();
-  const lastUpdateRef = useRef<number>(0);
-  const catSize = 64; // Assumed cat GIF size
-
-  // Throttle animation updates to reduce CPU usage - more throttling with more cats
-  const animate = useCallback((timestamp: number) => {
-    // Dynamic throttling based on cat count: more cats = lower frame rate
-    const throttleTime = totalCatCount > 50 ? 50 : totalCatCount > 20 ? 33 : 16;
-    if (timestamp - lastUpdateRef.current < throttleTime) {
-      animationRef.current = requestAnimationFrame(animate);
-      return;
-    }
-    lastUpdateRef.current = timestamp;
-
-    setPosition(prevPosition => {
-      const newPosition = { ...prevPosition };
-      
-      // Update position
-      newPosition.x += velocity.x;
-      newPosition.y += velocity.y;
-      
-      // Bounce off walls
-      const newVelocity = { ...velocity };
-      
-      // Left and right walls
-      if (newPosition.x <= 0 || newPosition.x >= window.innerWidth - catSize) {
-        newVelocity.x = -newVelocity.x;
-        newPosition.x = Math.max(0, Math.min(newPosition.x, window.innerWidth - catSize));
-      }
-      
-      // Top and bottom walls
-      if (newPosition.y <= 0 || newPosition.y >= window.innerHeight - catSize) {
-        newVelocity.y = -newVelocity.y;
-        newPosition.y = Math.max(0, Math.min(newPosition.y, window.innerHeight - catSize));
-      }
-      
-      // Update velocity if it changed
-      if (newVelocity.x !== velocity.x || newVelocity.y !== velocity.y) {
-        setVelocity(newVelocity);
-      }
-      
-      return newPosition;
-    });
-    
-    animationRef.current = requestAnimationFrame(animate);
-  }, [velocity, totalCatCount]);
-
-  useEffect(() => {
-    animationRef.current = requestAnimationFrame(animate);
-    
-    return () => {
-      if (animationRef.current) {
-        cancelAnimationFrame(animationRef.current);
-      }
-    };
-  }, [animate]);
-
-  // Handle window resize
-  useEffect(() => {
-    const handleResize = () => {
-      setPosition(prevPosition => ({
-        x: Math.min(prevPosition.x, window.innerWidth - catSize),
-        y: Math.min(prevPosition.y, window.innerHeight - catSize),
-      }));
-    };
-    
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
+    return {
+      '--cat-x0': seededViewport(seed, 1, 88, 'vw'),
+      '--cat-y0': seededViewport(seed, 2, 82, 'vh'),
+      '--cat-x1': seededViewport(seed, 3, 90, 'vw'),
+      '--cat-y1': seededViewport(seed, 4, 84, 'vh'),
+      '--cat-x2': seededViewport(seed, 5, 89, 'vw'),
+      '--cat-y2': seededViewport(seed, 6, 83, 'vh'),
+      '--cat-x3': seededViewport(seed, 7, 91, 'vw'),
+      '--cat-y3': seededViewport(seed, 8, 85, 'vh'),
+      '--cat-duration': `${duration + (seed % 5)}s`,
+      '--cat-delay': `${-(seed % 11)}s`,
+      '--cat-direction': seed % 2 === 0 ? 1 : -1,
+    } as CSSProperties;
+  }, [id, totalCatCount]);
 
   return (
-    <div
-      className="fixed pointer-events-none"
-      style={{
-        left: position.x,
-        top: position.y,
-        zIndex: 9999, // Above everything else
-        transform: velocity.x < 0 ? 'scaleX(-1)' : 'scaleX(1)', // Mirror when moving left
-        transition: 'transform 0.1s ease',
-      }}
-    >
-      <img
-        src="/nyancat.gif"
-        alt="Bouncy cat"
-        width={catSize}
-        height={catSize}
-        style={{
-          imageRendering: 'pixelated', // Keep GIF crisp
-        }}
-      />
+    <div className="bouncy-cat" style={style} aria-hidden="true">
+      <img src="/nyancat.gif" alt="" width={64} height={64} />
     </div>
   );
 }
+
+export const BouncyCat = memo(BouncyCatComponent);

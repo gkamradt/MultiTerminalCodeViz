@@ -22,7 +22,7 @@ export function useTypewriter({
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Generate random token size (3-6 characters)
-  const getTokenSize = () => Math.floor(Math.random() * 2) + 10; // 3-6 chars
+  const getTokenSize = () => Math.floor(Math.random() * 4) + 3;
 
   useEffect(() => {
     if (!enabled || lines.length === 0) {

@@ -26,7 +26,7 @@ describe('ControlsPanel', () => {
     renderControlsPanel();
     
     expect(screen.getByText('Terminal Controls')).toBeInTheDocument();
-    expect(screen.getByText('1 terminal')).toBeInTheDocument();
+    expect(document.querySelector('.terminal-count-control__value')).toHaveTextContent('1terminal');
     expect(screen.getByText('+')).toBeInTheDocument();
     expect(screen.getByText('-')).toBeInTheDocument();
     expect(screen.getByText('+10')).toBeInTheDocument();
@@ -106,7 +106,7 @@ describe('ControlsPanel', () => {
   it('should disable decrement button when at minimum (1)', () => {
     renderControlsPanel();
 
-    const decrementButton = screen.getByText('-');
+    const decrementButton = screen.getByRole('button', { name: 'Remove terminal' });
     expect(decrementButton).toBeDisabled();
   });
 
@@ -126,9 +126,62 @@ describe('ControlsPanel', () => {
       </ThemeProvider>
     );
 
-    const decrementTenButton = screen.getByText('-10');
+    const decrementTenButton = screen.getByRole('button', { name: 'Remove ten terminals' });
     fireEvent.click(decrementTenButton);
 
     expect(mockOnTerminalCountChange).toHaveBeenCalledWith(10);
+  });
+
+  it('keeps +∞ locked below 25 terminals', () => {
+    renderControlsPanel();
+
+    const infinityButton = screen.getByRole('button', {
+      name: 'Infinite terminals unlock at 25 terminals',
+    });
+
+    expect(infinityButton).toHaveAttribute('aria-disabled', 'true');
+    expect(screen.getByRole('tooltip')).toHaveTextContent('Unlocked at 25 terminals');
+    expect(screen.getByText(/24 to go/)).toBeInTheDocument();
+  });
+
+  it('does not start infinity when the locked button is clicked', () => {
+    const onStartInfinity = vi.fn();
+
+    render(
+      <ThemeProvider>
+        <AppProvider>
+          <ControlsPanel
+            terminalCount={24}
+            onTerminalCountChange={vi.fn()}
+            onStartInfinity={onStartInfinity}
+          />
+        </AppProvider>
+      </ThemeProvider>
+    );
+
+    fireEvent.click(screen.getByRole('button', {
+      name: 'Infinite terminals unlock at 25 terminals',
+    }));
+    expect(onStartInfinity).not.toHaveBeenCalled();
+  });
+
+  it('starts infinity once it is unlocked', () => {
+    const onStartInfinity = vi.fn();
+
+    render(
+      <ThemeProvider>
+        <AppProvider>
+          <ControlsPanel
+            terminalCount={25}
+            onTerminalCountChange={vi.fn()}
+            infinityUnlocked
+            onStartInfinity={onStartInfinity}
+          />
+        </AppProvider>
+      </ThemeProvider>
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'Start infinite terminals' }));
+    expect(onStartInfinity).toHaveBeenCalledTimes(1);
   });
 });

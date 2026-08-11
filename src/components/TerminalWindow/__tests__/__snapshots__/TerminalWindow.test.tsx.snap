@@ -1,82 +1,54 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`<TerminalWindow /> > should match snapshot for static UI 1`] = `
-<div
+<section
+  aria-label="Test Terminal"
   class="terminal-window bg-black border-black rounded overflow-hidden w-full h-full flex flex-col subpixel-antialiased"
   id="terminal-snapshot-test-window"
 >
-  <div
+  <header
     class="terminal-title-bar bg-gray-400 border-b border-gray-500 h-6 flex items-center text-center text-black select-none cursor-move"
   >
     <div
       class="flex ml-2 items-center space-x-2 no-drag"
     >
-      <div
-        class="border-red-900 bg-red-500 shadow-inner rounded-full w-3 h-3 cursor-pointer hover:bg-red-600 transition-colors"
-        title="Close terminal"
+      <button
+        aria-label="Close Test Terminal"
+        class="terminal-traffic-light terminal-traffic-light--close"
+        type="button"
       />
-      <div
-        class="border-yellow-900 bg-yellow-500 shadow-inner rounded-full w-3 h-3 cursor-pointer"
+      <span
+        class="terminal-traffic-light terminal-traffic-light--minimize"
       />
-      <div
-        class="border-green-900 bg-green-500 shadow-inner rounded-full w-3 h-3 cursor-pointer"
+      <span
+        class="terminal-traffic-light terminal-traffic-light--maximize"
       />
     </div>
-    <div
-      class="mx-auto pr-16"
+    <p
+      class="terminal-title mx-auto pr-16 text-center text-sm"
     >
-      <p
-        class="text-center text-sm"
-      >
-        Test Terminal
-      </p>
-    </div>
-  </div>
+      Test Terminal
+    </p>
+  </header>
   <div
-    class="terminal-content flex-grow pl-2 pr-2 pt-1 h-auto text-green-200 font-mono text-xs bg-black overflow-y-auto select-text text-left"
+    class="terminal-content flex-grow pl-2 pr-2 pt-1 text-green-200 font-mono text-xs bg-black overflow-y-auto select-text text-left"
   >
-    <pre>
-      <div
-        class="pb-2 text-purple-400 font-mono text-xs leading-tight"
-      >
-        <div>
-          ██╗   ██╗   ██╗██╗██████╗ ███████╗   ███╗   ███╗ ██████╗ ██████╗ ███████╗
-        </div>
-        <div>
-          ██║   ██║   ██║██║██╔══██╗██╔════╝   ████╗ ████║██╔═══██╗██╔══██╗██╔════╝
-        </div>
-        <div>
-          ██║   ██║   ██║██║██████╔╝█████╗     ██╔████╔██║██║   ██║██████╔╝█████╗  
-        </div>
-        <div>
-          ██║   ╚██╗ ██╔╝██║██╔══██╗██╔══╝     ██║╚██╔╝██║██║   ██║██╔══██╗██╔══╝  
-        </div>
-        <div>
-          ██║    ╚████╔╝ ██║██████╔╝███████╗   ██║ ╚═╝ ██║╚██████╔╝██║  ██║███████╗
-        </div>
-        <div>
-          ╚═╝     ╚═══╝  ╚═╝╚═════╝ ╚══════╝   ╚═╝     ╚═╝ ╚═════╝ ╚═╝  ╚═╝╚══════╝
-        </div>
-        <div />
-        <div>
-          ████████╗██╗  ██╗ █████╗ ███╗   ██╗   ██╗   ██╗ ██████╗ ██╗   ██╗
-        </div>
-        <div>
-          ╚══██╔══╝██║  ██║██╔══██╗████╗  ██║   ╚██╗ ██╔╝██╔═══██╗██║   ██║
-        </div>
-        <div>
-             ██║   ███████║███████║██╔██╗ ██║    ╚████╔╝ ██║   ██║██║   ██║
-        </div>
-        <div>
-             ██║   ██╔══██║██╔══██║██║╚██╗██║     ╚██╔╝  ██║   ██║██║   ██║
-        </div>
-        <div>
-             ██║   ██║  ██║██║  ██║██║ ╚████║      ██║   ╚██████╔╝╚██████╔╝
-        </div>
-        <div>
-             ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═══╝      ╚═╝    ╚═════╝  ╚═════╝ 
-        </div>
-      </div>
+    <pre
+      class="terminal-ascii pb-2 text-purple-400"
+    >
+      ██╗   ██╗   ██╗██╗██████╗ ███████╗   ███╗   ███╗ ██████╗ ██████╗ ███████╗
+██║   ██║   ██║██║██╔══██╗██╔════╝   ████╗ ████║██╔═══██╗██╔══██╗██╔════╝
+██║   ██║   ██║██║██████╔╝█████╗     ██╔████╔██║██║   ██║██████╔╝█████╗
+██║   ╚██╗ ██╔╝██║██╔══██╗██╔══╝     ██║╚██╔╝██║██║   ██║██╔══██╗██╔══╝
+██║    ╚████╔╝ ██║██████╔╝███████╗   ██║ ╚═╝ ██║╚██████╔╝██║  ██║███████╗
+╚═╝     ╚═══╝  ╚═╝╚═════╝ ╚══════╝   ╚═╝     ╚═╝ ╚═════╝ ╚═╝  ╚═╝╚══════╝
+
+████████╗██╗  ██╗ █████╗ ███╗   ██╗   ██╗   ██╗ ██████╗ ██╗   ██╗
+╚══██╔══╝██║  ██║██╔══██╗████╗  ██║   ╚██╗ ██╔╝██╔═══██╗██║   ██║
+   ██║   ███████║███████║██╔██╗ ██║    ╚████╔╝ ██║   ██║██║   ██║
+   ██║   ██╔══██║██╔══██║██║╚██╗██║     ╚██╔╝  ██║   ██║██║   ██║
+   ██║   ██║  ██║██║  ██║██║ ╚████║      ██║   ╚██████╔╝╚██████╔╝
+   ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═══╝      ╚═╝    ╚═════╝  ╚═════╝
     </pre>
     <p
       class="pb-1 text-gray-400"
@@ -115,5 +87,5 @@ exports[`<TerminalWindow /> > should match snapshot for static UI 1`] = `
       </span>
     </div>
   </div>
-</div>
+</section>
 `;

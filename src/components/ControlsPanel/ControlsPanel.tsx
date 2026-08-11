@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useId, useState } from 'react';
 import { useTheme } from '../../contexts/ThemeContext';
+import { formatTerminalCount, INFINITY_UNLOCK_COUNT } from '../../utils/vibeEconomy';
 import { SimpleYouTubePlayer } from '../YouTubeAudioPlayer/SimpleYouTubePlayer';
 
 interface ControlsPanelProps {
@@ -10,235 +11,232 @@ interface ControlsPanelProps {
   maxTerminals?: number;
   catCount?: number;
   onRemoveAllCats?: () => void;
+  infinityUnlocked?: boolean;
+  infinityActive?: boolean;
+  onStartInfinity?: () => void;
 }
 
-export function ControlsPanel({ 
-  terminalCount, 
+export function ControlsPanel({
+  terminalCount,
   onTerminalCountChange,
   onArrangeTerminals,
-  minTerminals = 1, 
-  maxTerminals = 10000,
+  minTerminals = 1,
+  maxTerminals = 10_000,
   catCount = 0,
-  onRemoveAllCats
+  onRemoveAllCats,
+  infinityUnlocked = false,
+  infinityActive = false,
+  onStartInfinity,
 }: ControlsPanelProps) {
   const [isVisible, setIsVisible] = useState(true);
+  const infinityTooltipId = useId();
   const { themeName, setTheme, getThemeNames } = useTheme();
-
-  // YouTube videos for the audio player
+  const manualControlsDisabled = infinityActive;
+  const remainingToUnlock = Math.max(0, INFINITY_UNLOCK_COUNT - terminalCount);
   const youtubeVideos = [
-    { 
-      id: 'jfKfPfyJRdk', 
-      url: 'https://www.youtube.com/watch?v=jfKfPfyJRdk',
-      title: 'lofi hip hop radio 📚 - beats to relax/study to'
-    },
     {
-      id: 'example2',
-      url: 'https://www.youtube.com/watch?v=5qap5aO4i9A',
-      title: 'lofi hip hop radio 🎵'
-    }
+      id: 'jfKfPfyJRdk',
+      url: 'https://www.youtube.com/watch?v=jfKfPfyJRdk',
+      title: 'lofi hip hop radio 📚 - beats to relax/study to',
+    },
   ];
 
   const handleIncrement = () => {
-    if (terminalCount < maxTerminals) {
+    if (!manualControlsDisabled && terminalCount < maxTerminals) {
       onTerminalCountChange(terminalCount + 1);
     }
   };
 
   const handleIncrementByTen = () => {
-    if (terminalCount < maxTerminals) {
-      const newCount = Math.min(terminalCount + 10, maxTerminals);
-      onTerminalCountChange(newCount);
+    if (!manualControlsDisabled && terminalCount < maxTerminals) {
+      onTerminalCountChange(Math.min(terminalCount + 10, maxTerminals));
     }
   };
 
   const handleDecrement = () => {
-    if (terminalCount > minTerminals) {
+    if (!manualControlsDisabled && terminalCount > minTerminals) {
       onTerminalCountChange(terminalCount - 1);
     }
   };
 
   const handleDecrementByTen = () => {
-    if (terminalCount > minTerminals) {
-      const newCount = Math.max(terminalCount - 10, minTerminals);
-      onTerminalCountChange(newCount);
+    if (!manualControlsDisabled && terminalCount > minTerminals) {
+      onTerminalCountChange(Math.max(terminalCount - 10, minTerminals));
     }
-  };
-
-  const toggleVisibility = () => {
-    setIsVisible(!isVisible);
   };
 
   const handleThemeToggle = () => {
     const themes = getThemeNames();
     const currentIndex = themes.indexOf(themeName);
-    const nextIndex = (currentIndex + 1) % themes.length;
-    setTheme(themes[nextIndex]);
+    setTheme(themes[(currentIndex + 1) % themes.length]);
+  };
+
+  const handleStartInfinity = () => {
+    if (infinityUnlocked && !infinityActive) {
+      onStartInfinity?.();
+    }
   };
 
   return (
     <>
-      {/* Main Controls Panel */}
-      <div 
-        className={`fixed top-4 left-4 bg-gray-800 border border-gray-600 rounded-lg shadow-lg transition-transform duration-300 ${
-          isVisible ? 'translate-x-0' : '-translate-x-full'
-        }`}
-        style={{ zIndex: 10001 }} // Ensure controls are always above cats and terminals
+      <section
+        className={`control-panel ${isVisible ? 'control-panel--visible' : 'control-panel--hidden'}`}
+        aria-label="Vibe controls"
       >
-        <div className="p-4 space-y-3">
-          {/* Header */}
-          <div className="flex items-center justify-between">
-            <h3 className="text-white font-medium text-sm">Terminal Controls</h3>
+        <div className="control-panel__inner">
+          <div className="control-panel__header">
+            <div>
+              <span className="control-panel__eyebrow">DESKTOP LOAD</span>
+              <h2>Terminal Controls</h2>
+            </div>
             <button
-              onClick={toggleVisibility}
-              className="text-gray-400 hover:text-white transition-colors border-0 p-1 bg-transparent"
-              style={{ backgroundColor: 'transparent' }}
+              type="button"
+              onClick={() => setIsVisible(false)}
+              className="control-panel__close"
               aria-label="Hide controls"
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
+              ×
             </button>
           </div>
 
-          {/* Terminal Count Control */}
-          <div className="flex items-center justify-center space-x-3">
+          <div className="terminal-count-control">
             <button
+              type="button"
               onClick={handleDecrementByTen}
-              disabled={terminalCount <= minTerminals}
-              className="w-8 h-8 bg-red-600 hover:bg-red-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white rounded font-bold transition-colors border-0 p-0"
-              style={{ backgroundColor: terminalCount <= minTerminals ? '#4b5563' : '#dc2626' }}
+              disabled={manualControlsDisabled || terminalCount <= minTerminals}
+              className="count-button count-button--remove"
               aria-label="Remove ten terminals"
             >
               -10
             </button>
-
             <button
+              type="button"
               onClick={handleDecrement}
-              disabled={terminalCount <= minTerminals}
-              className="w-8 h-8 bg-red-600 hover:bg-red-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white rounded font-bold transition-colors border-0 p-0"
-              style={{ backgroundColor: terminalCount <= minTerminals ? '#4b5563' : '#dc2626' }}
+              disabled={manualControlsDisabled || terminalCount <= minTerminals}
+              className="count-button count-button--remove"
               aria-label="Remove terminal"
             >
               -
             </button>
-
-            <span className="text-white font-mono text-sm min-w-[3rem] text-center">
-              {terminalCount} terminal{terminalCount !== 1 ? 's' : ''}
+            <span className="terminal-count-control__value">
+              {formatTerminalCount(terminalCount)}
+              <small>terminal{terminalCount === 1 ? '' : 's'}</small>
             </span>
-
             <button
+              type="button"
               onClick={handleIncrement}
-              disabled={terminalCount >= maxTerminals}
-              className="w-8 h-8 bg-green-600 hover:bg-green-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white rounded font-bold transition-colors border-0 p-0"
-              style={{ backgroundColor: terminalCount >= maxTerminals ? '#4b5563' : '#059669' }}
+              disabled={manualControlsDisabled || terminalCount >= maxTerminals}
+              className="count-button count-button--add"
               aria-label="Add terminal"
             >
               +
             </button>
-
             <button
+              type="button"
               onClick={handleIncrementByTen}
-              disabled={terminalCount >= maxTerminals}
-              className="w-8 h-8 bg-green-600 hover:bg-green-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white rounded font-bold transition-colors border-0 p-0"
-              style={{ backgroundColor: terminalCount >= maxTerminals ? '#4b5563' : '#059669' }}
+              disabled={manualControlsDisabled || terminalCount >= maxTerminals}
+              className="count-button count-button--add"
               aria-label="Add ten terminals"
             >
               +10
             </button>
           </div>
 
-          {/* Arrange Button */}
-          {onArrangeTerminals && (
-            <button
-              onClick={onArrangeTerminals}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded py-2 px-3 text-sm font-medium transition-colors border-0"
-              style={{ backgroundColor: '#2563eb' }}
-              aria-label="Arrange terminals in grid"
-            >
-              Arrange
-            </button>
-          )}
-
-          {/* Theme Toggle Button */}
-          <button
-            onClick={handleThemeToggle}
-            className="w-full bg-purple-600 hover:bg-purple-700 text-white rounded py-2 px-3 text-sm font-medium transition-colors border-0"
-            style={{ backgroundColor: '#7c3aed' }}
-            aria-label={`Switch theme (current: ${themeName})`}
-          >
-            Theme: {themeName}
-          </button>
-
-          {/* Cat Controls (only show if cats exist) */}
-          {catCount > 0 && onRemoveAllCats && (
-            <div className="space-y-2">
-              <div className="text-center">
-                <span className="text-white font-mono text-xs">
-                  🐱 {catCount} vibe cat{catCount !== 1 ? 's' : ''}
-                </span>
-              </div>
+          <div className="infinity-control">
+            <div className="infinity-button-shell">
               <button
-                onClick={onRemoveAllCats}
-                className="w-full bg-orange-600 hover:bg-orange-700 text-white rounded py-2 px-3 text-sm font-medium transition-colors border-0"
-                style={{ backgroundColor: '#ea580c' }}
-                aria-label="Remove all cats"
+                type="button"
+                className={`infinity-button ${infinityUnlocked ? 'infinity-button--unlocked' : 'infinity-button--locked'} ${infinityActive ? 'infinity-button--active' : ''}`}
+                disabled={infinityActive}
+                aria-disabled={!infinityUnlocked || infinityActive}
+                aria-describedby={!infinityUnlocked ? infinityTooltipId : undefined}
+                onClick={handleStartInfinity}
+                aria-label={
+                  infinityActive
+                    ? 'Infinite terminals active'
+                    : infinityUnlocked
+                      ? 'Start infinite terminals'
+                      : `Infinite terminals unlock at ${INFINITY_UNLOCK_COUNT} terminals`
+                }
               >
-                Remove Cats
+                +∞
+              </button>
+              {!infinityUnlocked && (
+                <span
+                  id={infinityTooltipId}
+                  role="tooltip"
+                  className="infinity-lock-tooltip"
+                >
+                  Unlocked at {INFINITY_UNLOCK_COUNT} terminals
+                </span>
+              )}
+            </div>
+            <span className="infinity-control__copy">
+              {infinityActive
+                ? 'Vibe singularity active'
+                : infinityUnlocked
+                  ? 'Unlocked — 90 seconds to $1B'
+                  : `Unlocks at ${INFINITY_UNLOCK_COUNT} terminals · ${remainingToUnlock} to go`}
+            </span>
+          </div>
+
+          <div className="control-panel__actions">
+            {onArrangeTerminals && (
+              <button
+                type="button"
+                onClick={onArrangeTerminals}
+                className="panel-action panel-action--arrange"
+                aria-label="Arrange terminals in grid"
+              >
+                Arrange
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={handleThemeToggle}
+              className="panel-action panel-action--theme"
+              aria-label={`Switch theme (current: ${themeName})`}
+            >
+              Theme: {themeName}
+            </button>
+          </div>
+
+          {catCount > 0 && onRemoveAllCats && (
+            <div className="cat-control">
+              <span>🐱 {catCount} vibe cat{catCount === 1 ? '' : 's'}</span>
+              <button type="button" onClick={onRemoveAllCats} aria-label="Remove all cats">
+                Clear cats
               </button>
             </div>
           )}
 
-          {/* YouTube Audio Player */}
-          <div className="space-y-2">
-            <SimpleYouTubePlayer videos={youtubeVideos} />
-          </div>
+          <SimpleYouTubePlayer videos={youtubeVideos} />
 
-          {/* Footer */}
-          <div className="pt-3 border-t border-gray-600 text-center">
-            <p className="text-gray-400 text-xs">
-              Made with ❤️ by{' '}
-              <a 
-                href="https://x.com/gregkamradt" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="text-blue-400 hover:text-blue-300 transition-colors underline"
-              >
-                Greg Kamradt
-              </a>
-              <br />
-              <a
-                href="https://github.com/gkamradt/MultiTerminalCodeViz"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-blue-400 hover:text-blue-300 transition-colors underline"
-              >
-                Code
-              </a>
-              {' '} • {' '}
-              <a
-                href="/typer"
-                className="text-green-400 hover:text-green-300 transition-colors underline"
-              >
-                vibe typer
-              </a>
-            </p>
-          </div>
+          <footer className="control-panel__footer">
+            Made with ❤️ by{' '}
+            <a href="https://x.com/gregkamradt" target="_blank" rel="noopener noreferrer">
+              Greg Kamradt
+            </a>
+            <span> · </span>
+            <a href="https://github.com/gkamradt/MultiTerminalCodeViz" target="_blank" rel="noopener noreferrer">
+              Code
+            </a>
+            <span> · </span>
+            <a href="/typer">vibe typer</a>
+          </footer>
         </div>
-      </div>
+      </section>
 
-      {/* Show Controls Button (appears when panel is hidden) */}
       {!isVisible && (
         <button
-          onClick={toggleVisibility}
-          className="fixed top-4 left-4 w-10 h-10 bg-gray-800 hover:bg-gray-700 border border-gray-600 rounded-lg shadow-lg text-white transition-colors flex items-center justify-center p-0"
-          style={{ backgroundColor: '#1f2937', zIndex: 10001 }}
+          type="button"
+          onClick={() => setIsVisible(true)}
+          className="control-panel-reveal"
           aria-label="Show controls"
         >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-          </svg>
+          Controls
         </button>
       )}
     </>
   );
-} 
+}
