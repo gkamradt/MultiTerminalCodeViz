@@ -15,6 +15,7 @@ interface ControlsPanelProps {
   infinityUnlocked?: boolean;
   infinityActive?: boolean;
   onStartInfinity?: () => void;
+  onPreviewReceipt?: () => void;
 }
 
 export function ControlsPanel({
@@ -29,6 +30,7 @@ export function ControlsPanel({
   infinityUnlocked = false,
   infinityActive = false,
   onStartInfinity,
+  onPreviewReceipt,
 }: ControlsPanelProps) {
   const [isVisible, setIsVisible] = useState(true);
   const infinityTooltipId = useId();
@@ -213,6 +215,12 @@ export function ControlsPanel({
           )}
 
           <SimpleYouTubePlayer videos={youtubeVideos} />
+
+          {onPreviewReceipt && (
+            <button type="button" className="receipt-preview-link" onClick={onPreviewReceipt}>
+              Preview receipt ↗ <span>local only</span>
+            </button>
+          )}
 
           <footer className="control-panel__footer">
             Made with ❤️ by{' '}

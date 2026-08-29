@@ -6,14 +6,33 @@ import {
   calculateInfinitySnapshot,
   formatDollars,
   formatTokensPerSecond,
+  formatVibeReceipt,
   getLogicalTerminalCount,
   getManualTokensPerSecond,
   getTerminalTokensPerSecond,
   getVibeCatCount,
+  getVibePromotion,
   solveInfinityGrowth,
 } from '../vibeEconomy';
 
 describe('vibe economy', () => {
+  it('awards the highest crossed promotion, including skipped milestones', () => {
+    expect(getVibePromotion(4).title).toBe('Vibe Intern');
+    expect(getVibePromotion(5).title).toBe('Prompt Enthusiast');
+    expect(getVibePromotion(24).title).toBe('10× Engineer');
+    expect(getVibePromotion(25).title).toBe('Human Middleware');
+    expect(getVibePromotion(101).title).toBe('Distributed Liability');
+    expect(getVibePromotion(1_000_000_000).title).toBe('Too Big to Debug');
+  });
+
+  it('shares the run results with an explicit simulation disclaimer', () => {
+    const receipt = formatVibeReceipt(BILLION_DOLLAR_TARGET, 1_234, 'Too Big to Debug');
+    expect(receipt).toContain('Total burned: $1,000,000,000.00');
+    expect(receipt).toContain('Peak terminals: 1,234');
+    expect(receipt).toContain('Highest promotion: Too Big to Debug');
+    expect(receipt).toContain('All figures simulated. Your card is safe.');
+  });
+
   it('uses variable terminal rates with an O(1) repeating aggregate', () => {
     const firstCycle = Array.from({ length: 8 }, (_, index) => getTerminalTokensPerSecond(index));
 

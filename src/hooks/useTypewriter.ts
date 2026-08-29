@@ -37,7 +37,7 @@ export function useTypewriter({
           setCurrentLineIndex(0);
           setCurrentCharIndex(0);
         }, loopDelay);
-        return;
+        return () => { if (timeoutRef.current) clearTimeout(timeoutRef.current); };
       } else {
         return;
       }
@@ -51,7 +51,7 @@ export function useTypewriter({
       timeoutRef.current = setTimeout(() => {
         setCurrentCharIndex(1);
       }, delay);
-      return;
+      return () => { if (timeoutRef.current) clearTimeout(timeoutRef.current); };
     }
 
     // Type out the current line using tokens

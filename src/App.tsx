@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, useSearchParams } from 'react-router-dom';
 import { Analytics } from '@vercel/analytics/react';
 import './App.css';
 import { AppProvider } from './contexts/AppContext';
@@ -9,9 +9,24 @@ import { ControlsPanel } from './components/ControlsPanel/ControlsPanel';
 import { BouncyCat } from './components/BouncyCat/BouncyCat';
 import { BurnRateHUD } from './components/BurnRateHUD/BurnRateHUD';
 import { CrtFinale } from './components/CrtFinale/CrtFinale';
+import { VibeReceipt } from './components/VibeReceipt/VibeReceipt';
 import { AsciiTyper } from './pages/AsciiTyper';
 import { useVibeEconomy } from './hooks/useVibeEconomy';
-import { getVibeCatCount, INFINITY_UNLOCK_COUNT } from './utils/vibeEconomy';
+import {
+  calculateInfinitySnapshot,
+  getManualTokensPerSecond,
+  getVibeCatCount,
+  getVibePromotion,
+  INFINITY_DURATION_MS,
+  INFINITY_UNLOCK_COUNT,
+} from './utils/vibeEconomy';
+
+const RECEIPT_PREVIEW = import.meta.env.DEV ? calculateInfinitySnapshot({
+  elapsedMs: INFINITY_DURATION_MS,
+  startingDollars: 0,
+  startingTerminalCount: INFINITY_UNLOCK_COUNT,
+  manualTokensPerSecond: getManualTokensPerSecond(INFINITY_UNLOCK_COUNT),
+}) : null;
 
 interface Size {
   width: number;
@@ -100,7 +115,7 @@ function clampPosition(
 ) {
   const minX = profile.isMobile ? -Math.max(0, size.width - profile.width + 12) : 0;
   const maxX = Math.max(minX, profile.width - Math.min(size.width, profile.width));
-  const minY = profile.isMobile ? 94 : 0;
+  const minY = profile.isMobile ? 174 : 0;
   const maxY = Math.max(minY, profile.height - Math.min(size.height, profile.height));
   return {
     x: Math.max(minX, Math.min(position.x, maxX)),
@@ -108,7 +123,9 @@ function clampPosition(
   };
 }
 
-function AppContent() {
+function AppContent({ onRestart }: { onRestart: () => void }) {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const receiptPreview = import.meta.env.DEV && searchParams.get('preview') === 'receipt';
   const profile = useViewportProfile();
   const profileRef = useRef(profile);
   const nextTerminalIdRef = useRef(1);
@@ -116,12 +133,19 @@ function AppContent() {
   const [actualTerminalCount, setActualTerminalCount] = useState(1);
   const [infinityUnlocked, setInfinityUnlocked] = useState(false);
   const [catsSuppressed, setCatsSuppressed] = useState(false);
-  const economy = useVibeEconomy(actualTerminalCount);
+  const economy = useVibeEconomy(actualTerminalCount, !receiptPreview);
+  const displayedTerminalCount = economy.isInfinite ? economy.logicalTerminalCount : actualTerminalCount;
+  const currentPromotion = getVibePromotion(displayedTerminalCount);
+  const [promotion, setPromotion] = useState(currentPromotion);
+
+  useEffect(() => {
+    setPromotion((earned) => currentPromotion.threshold > earned.threshold ? currentPromotion : earned);
+  }, [currentPromotion]);
 
   const makeTerminal = useCallback((overrideSize?: Size): Terminal => {
     const currentProfile = profileRef.current;
     const size = overrideSize ?? currentProfile.terminalSize;
-    const safeTop = currentProfile.isMobile ? 106 : 18;
+    const safeTop = currentProfile.isMobile ? 186 : 18;
     const availableX = Math.max(1, currentProfile.width - Math.min(size.width, currentProfile.width));
     const availableY = Math.max(1, currentProfile.height - safeTop - Math.min(size.height, currentProfile.height));
     const sequence = nextTerminalIdRef.current;
@@ -192,13 +216,13 @@ function AppContent() {
   }, [actualTerminalCount]);
 
   useEffect(() => {
-    if (!economy.isInfinite || economy.isComplete) return undefined;
+    if (!economy.isInfinite || economy.isComplete || receiptPreview) return undefined;
     const interval = window.setInterval(
       () => reconcileTerminalPool(profileRef.current.maxRenderedTerminals, true),
       profileRef.current.isMobile ? 650 : profileRef.current.isTablet ? 420 : 260,
     );
     return () => window.clearInterval(interval);
-  }, [economy.isComplete, economy.isInfinite, reconcileTerminalPool]);
+  }, [economy.isComplete, economy.isInfinite, receiptPreview, reconcileTerminalPool]);
 
   const handleTerminalCountChange = useCallback((count: number) => {
     if (economyRef.current) return;
@@ -248,7 +272,7 @@ function AppContent() {
   const handleArrangeTerminals = useCallback(() => {
     const currentProfile = profileRef.current;
     const count = Math.max(1, terminalsRef.current.length);
-    const topOffset = currentProfile.isMobile ? 106 : 18;
+    const topOffset = currentProfile.isMobile ? 186 : 18;
     const gap = currentProfile.isMobile ? 8 : 14;
     const usableWidth = Math.max(1, currentProfile.width - gap * 2);
     const usableHeight = Math.max(1, currentProfile.height - topOffset - gap);
@@ -293,9 +317,26 @@ function AppContent() {
     return getVibeCatCount(catTerminalCount, profile.maxCats);
   }, [actualTerminalCount, catsSuppressed, economy.isInfinite, economy.logicalTerminalCount, profile.maxCats]);
 
-  const displayedTerminalCount = economy.isInfinite
-    ? economy.logicalTerminalCount
-    : actualTerminalCount;
+  if (economy.isComplete || receiptPreview) {
+    const receiptEconomy = receiptPreview && RECEIPT_PREVIEW ? RECEIPT_PREVIEW : economy;
+    const receipt = (
+      <VibeReceipt
+        dollarsSpent={receiptEconomy.dollarsSpent}
+        terminalCount={receiptEconomy.logicalTerminalCount}
+        promotion={getVibePromotion(receiptEconomy.logicalTerminalCount)}
+        onRestart={() => {
+          setSearchParams({});
+          onRestart();
+        }}
+        onBack={receiptPreview ? () => setSearchParams({}) : undefined}
+      />
+    );
+    return (
+      <main className="desktop-stage">
+        {receiptPreview ? receipt : <CrtFinale>{receipt}</CrtFinale>}
+      </main>
+    );
+  }
 
   return (
     <main className={`desktop-stage ${economy.isInfinite ? 'desktop-stage--infinite' : ''}`}>
@@ -305,6 +346,7 @@ function AppContent() {
         terminalCount={displayedTerminalCount}
         progress={economy.progress}
         isInfinite={economy.isInfinite}
+        promotion={promotion}
       />
 
       <ControlsPanel
@@ -317,6 +359,7 @@ function AppContent() {
         infinityUnlocked={infinityUnlocked}
         infinityActive={economy.isInfinite}
         onStartInfinity={handleStartInfinity}
+        onPreviewReceipt={import.meta.env.DEV ? () => setSearchParams({ preview: 'receipt' }) : undefined}
       />
 
       <div className="terminal-layer" aria-label="Terminal desktop">
@@ -342,19 +385,18 @@ function AppContent() {
       {Array.from({ length: catCount }, (_, index) => (
         <BouncyCat key={`cat-${index}`} id={`cat-${index}`} totalCatCount={catCount} />
       ))}
-
-      {economy.isComplete && <CrtFinale />}
     </main>
   );
 }
 
 function App() {
+  const [session, setSession] = useState(0);
   return (
     <ThemeProvider>
       <AppProvider>
         <Router>
           <Routes>
-            <Route path="/" element={<AppContent />} />
+            <Route path="/" element={<AppContent key={session} onRestart={() => setSession((value) => value + 1)} />} />
             <Route path="/typer" element={<AsciiTyper />} />
           </Routes>
           <Analytics />

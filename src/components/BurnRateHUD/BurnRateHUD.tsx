@@ -3,6 +3,8 @@ import {
   formatTerminalCount,
   formatTokensPerSecond,
 } from '../../utils/vibeEconomy';
+import type { VibeRank } from '../../utils/vibeEconomy';
+import { VibePromotion } from '../VibePromotion/VibePromotion';
 
 interface BurnRateHUDProps {
   tokensPerSecond: number;
@@ -10,6 +12,7 @@ interface BurnRateHUDProps {
   terminalCount: number;
   progress: number;
   isInfinite: boolean;
+  promotion: VibeRank;
 }
 
 export function BurnRateHUD({
@@ -18,6 +21,7 @@ export function BurnRateHUD({
   terminalCount,
   progress,
   isInfinite,
+  promotion,
 }: BurnRateHUDProps) {
   return (
     <aside className={`burn-rate-hud ${isInfinite ? 'burn-rate-hud--critical' : ''}`}>
@@ -61,6 +65,7 @@ export function BurnRateHUD({
           <span style={{ transform: `scaleX(${progress})` }} />
         </div>
       )}
+      <VibePromotion promotion={promotion} />
     </aside>
   );
 }

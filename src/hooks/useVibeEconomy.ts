@@ -18,7 +18,7 @@ interface EconomyState {
 
 const UI_UPDATE_INTERVAL_MS = 100;
 
-export function useVibeEconomy(terminalCount: number) {
+export function useVibeEconomy(terminalCount: number, enabled = true) {
   const manualTokensPerSecond = useMemo(
     () => getManualTokensPerSecond(terminalCount),
     [terminalCount],
@@ -44,6 +44,9 @@ export function useVibeEconomy(terminalCount: number) {
   }, [economy]);
 
   useEffect(() => {
+    if (!enabled || economy.isComplete) return;
+    lastTickRef.current = performance.now();
+
     const tick = () => {
       const now = performance.now();
       const deltaSeconds = Math.min((now - lastTickRef.current) / 1_000, 1);
@@ -74,7 +77,7 @@ export function useVibeEconomy(terminalCount: number) {
 
     const interval = window.setInterval(tick, UI_UPDATE_INTERVAL_MS);
     return () => window.clearInterval(interval);
-  }, [manualTokensPerSecond, terminalCount]);
+  }, [enabled, economy.isComplete, manualTokensPerSecond, terminalCount]);
 
   const startInfinity = useCallback(() => {
     if (economyRef.current.isInfinite) return;

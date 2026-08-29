@@ -1,0 +1,52 @@
+.vibe-promotion {
+  padding: 14px 12px 11px;
+  border-top: 1px solid var(--instrument-border);
+  background: rgba(214, 197, 250, 0.055);
+  color: #d6c5fa;
+}
+
+.vibe-promotion__identity { display: flex; align-items: center; gap: 11px; }
+.vibe-promotion__identity--promoted { animation: promotion-arrive 350ms ease-out; }
+.vibe-promotion__badge {
+  display: grid;
+  flex: 0 0 38px;
+  height: 38px;
+  border: 1px solid rgba(214, 197, 250, 0.4);
+  border-radius: 8px;
+  background: rgba(214, 197, 250, 0.1);
+  font-size: 27px;
+  line-height: 1;
+  place-items: center;
+}
+.vibe-promotion__eyebrow { font-size: 8px; letter-spacing: 0.16em; text-transform: uppercase; }
+.vibe-promotion h2 {
+  margin: 2px 0 3px;
+  color: #f3f0fb;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 20px;
+  font-weight: 750;
+  letter-spacing: -0.035em;
+  line-height: 1.1;
+}
+.vibe-promotion p { margin: 0; color: #a5a2b0; font-size: 9px; line-height: 1.5; }
+.vibe-promotion__progress { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 12px; font-size: 8px; color: #aaa2b9; }
+.vibe-promotion__steps { display: flex; gap: 4px; }
+.vibe-promotion__steps span { width: 13px; height: 4px; border-radius: 1px; background: #413b4c; }
+.vibe-promotion__steps .is-earned { background: #d6c5fa; }
+
+@keyframes promotion-arrive {
+  from { opacity: 0.35; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 639px) {
+  .vibe-promotion { padding: 8px 10px; }
+  .vibe-promotion__badge { flex-basis: 30px; height: 30px; font-size: 23px; }
+  .vibe-promotion h2 { font-size: 17px; }
+  .vibe-promotion p { display: none; }
+  .vibe-promotion__progress { margin-top: 7px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vibe-promotion__identity--promoted { animation: none; }
+}

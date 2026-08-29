@@ -1,4 +1,17 @@
-export function CrtFinale() {
+import { useEffect, useState } from 'react';
+import type { ReactNode } from 'react';
+
+export function CrtFinale({ children }: { children?: ReactNode }) {
+  const [showReceipt, setShowReceipt] = useState(false);
+
+  useEffect(() => {
+    const reducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    const timeout = window.setTimeout(() => setShowReceipt(true), reducedMotion ? 0 : 2_800);
+    return () => window.clearTimeout(timeout);
+  }, []);
+
+  if (showReceipt) return children;
+
   return (
     <div className="crt-finale" role="status" aria-label="One billion dollar vibe overload">
       <div className="crt-finale__flash" />

@@ -4,6 +4,41 @@ export const INFINITY_UNLOCK_COUNT = 25;
 export const INFINITY_DURATION_MS = 90_000;
 export const BILLION_DOLLAR_TARGET = 1_000_000_000;
 
+export const VIBE_PROMOTIONS = [
+  { threshold: 1, title: 'Vibe Intern', description: 'One terminal. Unlimited potential.' },
+  { threshold: 5, title: 'Prompt Enthusiast', description: "You have a team now. They're all you." },
+  { threshold: 10, title: '10× Engineer', description: 'Ten terminals. Still one TODO.' },
+  { threshold: 25, title: 'Human Middleware', description: 'Your job is forwarding the prompts.' },
+  { threshold: 100, title: 'Distributed Liability', description: 'Nobody knows whose bug this is.' },
+  { threshold: 1_000, title: 'Too Big to Debug', description: "At this scale, it's a feature." },
+] as const;
+
+export type VibeRank = typeof VIBE_PROMOTIONS[number];
+
+export function getVibePromotion(terminalCount: number): VibeRank {
+  let promotion: VibeRank = VIBE_PROMOTIONS[0];
+  for (const candidate of VIBE_PROMOTIONS) {
+    if (terminalCount >= candidate.threshold) promotion = candidate;
+  }
+  return promotion;
+}
+
+export function formatVibeReceipt(dollarsSpent: number, terminalCount: number, title: string) {
+  return [
+    'I VIBE MORE THAN YOU — VIBE EXPENSE REPORT',
+    '',
+    `Total burned: ${formatDollars(dollarsSpent)}`,
+    'Deliverable: One button centered.',
+    'Tests written: 0',
+    `Peak terminals: ${formatTerminalCount(terminalCount)}`,
+    `Highest promotion: ${title}`,
+    '',
+    'No refunds. Only follow-up prompts.',
+    'All figures simulated. Your card is safe.',
+    'https://www.IVibeMoreThanYou.com/',
+  ].join('\n');
+}
+
 const TERMINAL_TOKEN_RATES = [1_375, 3_250, 2_125, 3_625, 1_750, 2_875, 2_500, 2_500];
 const TERMINAL_RATE_CYCLE_TOTAL = TERMINAL_TOKEN_RATES.reduce((sum, rate) => sum + rate, 0);
 export const AVERAGE_TERMINAL_TOKENS_PER_SECOND =

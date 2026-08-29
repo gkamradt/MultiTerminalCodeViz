@@ -1,9 +1,25 @@
-import { describe, it, expect } from 'vitest';
-import { render } from '@testing-library/react';
+import { describe, it, expect, vi } from 'vitest';
+import { render, renderHook } from '@testing-library/react';
 import { TerminalWindow } from '../TerminalWindow';
 import { ThemeProvider } from '../../../contexts/ThemeContext';
+import { useTypewriter } from '../../../hooks/useTypewriter';
 
 describe('<TerminalWindow />', () => {
+  it.each([
+    { text: 'Waiting to type', delay: 300 },
+    { text: '', delay: 0 },
+  ])('clears pending typing or loop delays on unmount: $text', (line) => {
+    vi.useFakeTimers();
+    try {
+      const { unmount } = renderHook(() => useTypewriter({ lines: [line], loop: true }));
+      expect(vi.getTimerCount()).toBe(1);
+      unmount();
+      expect(vi.getTimerCount()).toBe(0);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it('should match snapshot for static UI', () => {
     const { container } = render(
       <ThemeProvider>
@@ -76,4 +92,4 @@ describe('<TerminalWindow />', () => {
     expect(resizableBoxH).toHaveStyle('width: 650px;'); // Default width
     expect(resizableBoxH).toHaveStyle('height: 250px;');
   });
-}); 
+});
